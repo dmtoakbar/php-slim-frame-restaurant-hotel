@@ -1,0 +1,84 @@
+{% extends "admin/base.twig" %}
+
+{% block title %}Manage Rooms{% endblock %}
+
+{% set current_page = 'rooms' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Manage Rooms</h1>
+        <a href="/admin/rooms/create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New Room
+        </a>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Image</th>
+                            <th>Room #</th>
+                            <th>Type</th>
+                            <th>Price</th>
+                            <th>Capacity</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for room in rooms %}
+                        <tr>
+                            <td>#{{ room.id }}</td>
+                            <td>
+                                <img src="/uploads/{{ room.image|default('default-room.jpg') }}" 
+                                     alt="{{ room.type }}"
+                                     style="width: 60px; height: 40px; object-fit: cover; border-radius: 5px;">
+                            </td>
+                            <td>{{ room.room_number }}</td>
+                            <td>{{ room.type|capitalize }}</td>
+                            <td>{{currency}}{{ room.price|number_format(2) }}</td>
+                            <td>{{ room.capacity }}</td>
+                            <td>
+                                <span class="badge bg-{{ room.status == 'available' ? 'success' : (room.status == 'occupied' ? 'danger' : 'warning') }}">
+                                    {{ room.status|capitalize }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="/admin/rooms/{{ room.id }}/edit" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <button onclick="deleteRoom({{ room.id }})" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center">No rooms found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteRoom(id) {
+    if (confirm('Are you sure you want to delete this room?')) {
+      
+         fetch('/admin/rooms/' + id, {
+            method: 'DELETE'
+        })
+        .then(() => {
+            window.location.href = "/admin/rooms";
+        });
+    }
+}
+</script>
+{% endblock %}

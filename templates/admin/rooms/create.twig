@@ -1,0 +1,83 @@
+{% extends "admin/base.twig" %}
+
+{% block title %}Add New Room{% endblock %}
+
+{% set current_page = 'rooms' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Add New Room</h1>
+        <a href="/admin/rooms" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Rooms
+        </a>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" action="/admin/rooms" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Room Number *</label>
+                        <input type="text" name="room_number" class="form-control" required>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Room Type *</label>
+                        <select name="type" class="form-control" required>
+                            <option value="standard">Standard</option>
+                            <option value="deluxe">Deluxe</option>
+                            <option value="suite">Suite</option>
+                            <option value="presidential">Presidential</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Price per Night ({{currency}}) *</label>
+                        <input type="number" step="0.01" name="price" class="form-control" required>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Capacity (Max Guests) *</label>
+                        <input type="number" name="capacity" class="form-control" required>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Status *</label>
+                        <select name="status" class="form-control" required>
+                            <option value="available">Available</option>
+                            <option value="occupied">Occupied</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="reserved">Reserved</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Room Image</label>
+                        <input type="file" name="image" class="form-control" accept="image/*">
+                        <small class="text-muted">Leave empty to use default image</small>
+                    </div>
+                    
+                    <div class="col-12 mb-3">
+                        <label class="form-label">Amenities (comma separated)</label>
+                        <input type="text" name="amenities" class="form-control" 
+                               placeholder="WiFi, TV, Air Conditioning, Mini Bar">
+                    </div>
+                    
+                    <div class="col-12 mb-3">
+                        <label class="form-label">Description *</label>
+                        <textarea name="description" class="form-control" rows="5" required></textarea>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="text-end">
+                    <button type="reset" class="btn btn-secondary">Reset</button>
+                    <button type="submit" class="btn btn-primary">Save Room</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

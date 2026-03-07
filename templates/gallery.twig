@@ -1,0 +1,59 @@
+{% extends "base.twig" %}
+
+{% block title %}Gallery - Hotel & Restaurant{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="bg-primary text-white py-5">
+    <div class="container text-center">
+        <h1>Our Gallery</h1>
+        <p class="lead">Take a visual tour of our property</p>
+    </div>
+</section>
+
+<!-- Gallery Filters -->
+<section class="container mt-4">
+    <div class="text-center mb-4">
+        <button class="btn btn-outline-primary filter-btn active" data-filter="all">All</button>
+        <button class="btn btn-outline-primary filter-btn" data-filter="hotel">Hotel</button>
+        <button class="btn btn-outline-primary filter-btn" data-filter="restaurant">Restaurant</button>
+        <button class="btn btn-outline-primary filter-btn" data-filter="events">Events</button>
+    </div>
+</section>
+
+<!-- Gallery Grid -->
+<section class="container">
+    <div class="gallery-grid" id="galleryGrid">
+        {% for image in images %}
+        <div class="gallery-item" data-category="{{ image.category }}">
+            <img src="/uploads/{{ image.image }}" 
+                 alt="{{ image.title }}"
+                 loading="lazy">
+            <div class="gallery-overlay">
+                <h5>{{ image.title }}</h5>
+                <p>{{ image.description }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<script>
+$(document).ready(function() {
+    // Gallery filtering
+    $('.filter-btn').click(function() {
+        var filter = $(this).data('filter');
+        
+        $('.filter-btn').removeClass('active');
+        $(this).addClass('active');
+        
+        if (filter === 'all') {
+            $('.gallery-item').fadeIn();
+        } else {
+            $('.gallery-item').fadeOut();
+            $('.gallery-item[data-category="' + filter + '"]').fadeIn();
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base.twig" %}
+
+{% block title %}Our Rooms - Hotel & Restaurant{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="bg-primary text-white py-5">
+    <div class="container text-center">
+        <h1>Our Rooms</h1>
+        <p class="lead">Choose from our selection of luxurious accommodations</p>
+    </div>
+</section>
+
+<!-- Filters -->
+<section class="container mt-4">
+    <div class="card">
+        <div class="card-body">
+            <form method="GET" action="/rooms" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Room Type</label>
+                    <select name="type" class="form-control">
+                        <option value="">All Types</option>
+                        <option value="standard" {{ filters.type == 'standard' ? 'selected' : '' }}>Standard</option>
+                        <option value="deluxe" {{ filters.type == 'deluxe' ? 'selected' : '' }}>Deluxe</option>
+                        <option value="suite" {{ filters.type == 'suite' ? 'selected' : '' }}>Suite</option>
+                        <option value="presidential" {{ filters.type == 'presidential' ? 'selected' : '' }}>Presidential</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Min Price</label>
+                    <input type="number" name="min_price" class="form-control" value="{{ filters.min_price }}" placeholder="Min {{currency}}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Max Price</label>
+                    <input type="number" name="max_price" class="form-control" value="{{ filters.max_price }}" placeholder="Max {{currency}}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Capacity</label>
+                    <select name="capacity" class="form-control">
+                        <option value="">Any</option>
+                        <option value="2" {{ filters.capacity == '2' ? 'selected' : '' }}>2 Guests</option>
+                        <option value="3" {{ filters.capacity == '3' ? 'selected' : '' }}>3 Guests</option>
+                        <option value="4" {{ filters.capacity == '4' ? 'selected' : '' }}>4 Guests</option>
+                        <option value="6" {{ filters.capacity == '6' ? 'selected' : '' }}>6+ Guests</option>
+                    </select>
+                </div>
+                <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    <a href="/rooms" class="btn btn-secondary">Clear Filters</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Rooms Grid -->
+<section class="container mt-5">
+    <div class="cards-grid">
+        {% for room in rooms %}
+        <div class="room-card">
+            <img src="/uploads/{{ room.image|default('default-room.jpg') }}" 
+                 alt="{{ room.type }} Room"
+                 loading="lazy">
+            <div class="card-body">
+                <h3 class="card-title">{{ room.type|capitalize }} Room - #{{ room.room_number }}</h3>
+                <p class="card-text">{{ room.description|slice(0, 120) }}...</p>
+                <div class="room-amenities">
+                    {% for amenity in room.amenities|split(',')|slice(0,4) %}
+                        <span><i class="fas fa-check-circle text-success"></i> {{ amenity|trim }}</span>
+                    {% endfor %}
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="room-price">{{currency}}{{ room.price|number_format(2) }} <small>/ night</small></div>
+                    <div class="room-status">
+                        <span class="badge bg-{{ room.status == 'available' ? 'success' : 'warning' }}">
+                            {{ room.status|capitalize }}
+                        </span>
+                    </div>
+                </div>
+                <a href="/rooms/{{ room.id }}" class="btn btn-primary w-100 mt-3">View Details</a>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle"></i> No rooms found matching your criteria.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

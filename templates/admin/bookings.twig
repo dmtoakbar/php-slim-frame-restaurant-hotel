@@ -1,0 +1,51 @@
+{% extends "admin/base.twig" %}
+
+{% block title %}Room Bookings{% endblock %}
+
+{% set current_page = 'bookings' %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4">Room Bookings</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <ul class="nav nav-tabs mb-3" id="bookingTabs">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#all">All</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#pending">Pending</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#confirmed">Confirmed</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#completed">Completed</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#cancelled">Cancelled</a>
+                </li>
+            </ul>
+            
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="all">
+                    {% include 'admin/partials/bookings_table.twig' with {bookings: bookings} %}
+                </div>
+                <div class="tab-pane fade" id="pending">
+                    {% include 'admin/partials/bookings_table.twig' with {bookings: bookings|filter(b => b.status == 'pending')} %}
+                </div>
+                <div class="tab-pane fade" id="confirmed">
+                    {% include 'admin/partials/bookings_table.twig' with {bookings: bookings|filter(b => b.status == 'confirmed')} %}
+                </div>
+                <div class="tab-pane fade" id="completed">
+                    {% include 'admin/partials/bookings_table.twig' with {bookings: bookings|filter(b => b.status == 'completed')} %}
+                </div>
+                <div class="tab-pane fade" id="cancelled">
+                    {% include 'admin/partials/bookings_table.twig' with {bookings: bookings|filter(b => b.status == 'cancelled')} %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

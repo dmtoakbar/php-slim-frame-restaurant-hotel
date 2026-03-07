@@ -1,0 +1,131 @@
+{% extends "base.twig" %}
+
+{% block title %}Restaurant Menu - Hotel & Restaurant{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="bg-primary text-white py-5">
+    <div class="container text-center">
+        <h1>Our Restaurant Menu</h1>
+        <p class="lead">Experience culinary excellence with our diverse selection</p>
+    </div>
+</section>
+
+<style>
+/* Inactive tab buttons */
+#menuTabs .nav-link {
+    background-color: rgb(33 37 41);  /* light gray background */
+    color: white;                 /* text color */
+    border: 1px solid rgb(33 37 41);   /* optional border */
+}
+
+/* Active tab button */
+#menuTabs .nav-link.active {
+    background-color: #0d6efd;  /* Bootstrap primary */
+    color: #fff;
+     border: 1px solid #0d6efd; 
+}
+</style>
+<!-- Menu Categories -->
+<section class="container mt-5">
+    <ul class="nav nav-pills justify-content-center mb-4" id="menuTabs" role="tablist">
+        {% for category in categories %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {{ loop.first ? 'active' : '' }} me-2 me-sm-3 me-md-4" 
+                    id="cat-{{ category.id }}-tab" 
+                    data-bs-toggle="pill" 
+                    data-bs-target="#cat-{{ category.id }}" 
+                    type="button" 
+                    role="tab">
+                {{ category.name }}
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+    
+    <div class="tab-content" id="menuTabsContent">
+        {% for category in categories %}
+        <div class="tab-pane fade {{ loop.first ? 'show active' : '' }}" 
+             id="cat-{{ category.id }}" 
+             role="tabpanel">
+            
+            <div class="text-center mb-4">
+                <p class="lead">{{ category.description }}</p>
+            </div>
+            
+            <div class="cards-grid">
+                {% for item in category.items %}
+                <div class="menu-item">
+                    <img src="/uploads/{{ item.image|default('default-food.jpg') }}" 
+                         alt="{{ item.name }}"
+                         loading="lazy">
+                    <div class="menu-item-content">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h4>{{ item.name }}</h4>
+                            <span class="menu-item-price">{{currency}}{{ item.price|number_format(2) }}</span>
+                        </div>
+                        <p class="menu-item-description">{{ item.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            {% if item.dietary_info %}
+                                <span class="dietary-info">
+                                    <i class="fas fa-leaf text-success"></i> {{ item.dietary_info }}
+                                </span>
+                            {% endif %}
+                            <span class="badge bg-{{ item.is_available ? 'success' : 'danger' }}">
+                                {{ item.is_available ? 'Available' : 'Sold Out' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        No items available in this category.
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Restaurant Info -->
+<section class="container mt-5">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-clock fa-3x text-primary mb-3"></i>
+                    <h4>Opening Hours</h4>
+                    <p class="mb-1">Breakfast: 7:00 AM - 11:00 AM</p>
+                    <p class="mb-1">Lunch: 12:00 PM - 3:00 PM</p>
+                    <p class="mb-1">Dinner: 6:00 PM - 11:00 PM</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-phone fa-3x text-primary mb-3"></i>
+                    <h4>Reservations</h4>
+                    <p class="mb-1">Call us to book a table</p>
+                    <p class="h5">+1 234 567 890</p>
+                    <a href="/reservation" class="btn btn-primary mt-3">Book Online</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-map-marker-alt fa-3x text-primary mb-3"></i>
+                    <h4>Location</h4>
+                    <p>123 Main Street<br>City, Country</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

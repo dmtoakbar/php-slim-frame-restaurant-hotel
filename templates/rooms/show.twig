@@ -1,0 +1,137 @@
+{% extends "base.twig" %}
+
+{% block title %}{{ room.type|capitalize }} Room - Hotel & Restaurant{% endblock %}
+
+{% block content %}
+<!-- Room Details -->
+<section class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/rooms">Rooms</a></li>
+            <li class="breadcrumb-item active">{{ room.type|capitalize }} Room #{{ room.room_number }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Room Image -->
+            <div class="card mb-4">
+                <img src="/uploads/{{ room.image|default('default-room.jpg') }}" 
+                     class="card-img-top" 
+                     alt="{{ room.type }} Room"
+                     style="max-height: 500px; object-fit: cover;">
+            </div>
+            
+            <!-- Room Description -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">Room Description</h4>
+                </div>
+                <div class="card-body">
+                    <p>{{ room.description }}</p>
+                    
+                    <h5 class="mt-4">Amenities</h5>
+                    <div class="row">
+                        {% for amenity in room.amenities|split(',') %}
+                        <div class="col-md-6 mb-2">
+                            <i class="fas fa-check-circle text-success"></i> {{ amenity|trim }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Booking Card -->
+            <div class="card sticky-top" style="top: 80px;">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Book This Room</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <span class="display-4 text-primary">{{currency}}{{ room.price|number_format(2) }}</span>
+                        <span class="text-muted">/ night</span>
+                    </div>
+                    
+                    <form id="quickBookingForm">
+                        <input type="hidden" name="room_id" value="{{ room.id }}">
+                        
+                        <div class="form-group mb-3">
+                            <label>Check-in Date</label>
+                            <input type="date" class="form-control" id="check_in" name="check_in" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label>Check-out Date</label>
+                            <input type="date" class="form-control" id="check_out" name="check_out" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label>Adults</label>
+                            <select class="form-control" name="adults" id="adults" required>
+                                {% for i in 1..room.capacity %}
+                                <option value="{{ i }}">{{ i }} Adult{{ i > 1 ? 's' : '' }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label>Children</label>
+                            <select class="form-control" name="children" id="children">
+                                <option value="0">0 Children</option>
+                                <option value="1">1 Child</option>
+                                <option value="2">2 Children</option>
+                                <option value="3">3 Children</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 btn-lg">Check Availability</button>
+                    </form>
+                    
+                    <hr>
+                    
+                    <div class="text-center">
+                        <i class="fas fa-phone-alt"></i> Need help? Call us: +1 234 567 890
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+$(document).ready(function() {
+    // Set min dates
+    var today = new Date().toISOString().split('T')[0];
+    $('#check_in').attr('min', today);
+    
+    $('#check_in').change(function() {
+        $('#check_out').attr('min', $(this).val());
+    });
+    
+    // Handle booking form
+   $('#quickBookingForm').submit(function(e) {
+    e.preventDefault();
+
+    var formData = $(this).serialize(); // includes room_id automatically
+
+    $.ajax({
+        url: '/rooms/check-availability',
+        method: 'POST',
+        data: formData,
+        success: function(response){
+            if(response.available){
+                 openBookingModal({{ room.id }}, '{{ room.name }}', {{ room.price }});
+            }else{
+                 showAlert("Room not available for selected dates", 'warning');
+            }
+        }
+    });
+});
+});
+</script>
+{% endblock %}

@@ -1,0 +1,191 @@
+{% extends "base.twig" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Welcome to Hotel & Restaurant</h1>
+            <p>Experience luxury and comfort at its finest</p>
+            <div class="hero-buttons">
+                <a href="/rooms" class="btn btn-primary">View Rooms</a>
+                <a href="/reservation" class="btn btn-outline">Book Now</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Booking Form -->
+<section class="container">
+    <div class="booking-form">
+        <h3 class="text-center">Check Availability</h3>
+        <form id="checkAvailability" class="row g-3">
+            <div class="col-12 col-md-3">
+                <input type="date" class="form-control" id="check_in" name="check_in" required>
+            </div>
+            <div class="col-12 col-md-3">
+                <input type="date" class="form-control" id="check_out" name="check_out" required>
+            </div>
+            <div class="col-6 col-md-2">
+                <select class="form-control" name="adults" required>
+                    <option value="1">1 Adult</option>
+                    <option value="2" selected>2 Adults</option>
+                    <option value="3">3 Adults</option>
+                    <option value="4">4 Adults</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <select class="form-control" name="children">
+                    <option value="0">0 Children</option>
+                    <option value="1">1 Child</option>
+                    <option value="2">2 Children</option>
+                    <option value="3">3 Children</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Check</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Available Rooms Section -->
+<section class="container mt-5" id="availableRooms"></section>
+
+<!-- Featured Rooms -->
+<section class="container mt-5">
+    <h2 class="text-center mb-4">Featured Rooms</h2>
+    <div class="cards-grid">
+        {% for room in featuredRooms %}
+        <div class="room-card">
+            <img src="/uploads/{{ room.image|default('default-room.jpg') }}" 
+                 alt="{{ room.type }} Room"
+                 loading="lazy">
+            <div class="card-body">
+                <h3 class="card-title">{{ room.type|capitalize }} Room</h3>
+                <p class="card-text">{{ room.description|slice(0, 100) }}...</p>
+                <div class="room-amenities">
+                    {% for amenity in room.amenities|split(',')|slice(0,3) %}
+                        <span><i class="fas fa-check-circle text-success"></i> {{ amenity|trim }}</span>
+                    {% endfor %}
+                </div>
+                <div class="room-price">{{currency}}{{ room.price|number_format(2) }} <small>/ night</small></div>
+                <a href="/rooms/{{ room.id }}" class="btn btn-primary w-100">View Details</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="text-center mt-4">
+        <a href="/rooms" class="btn btn-secondary">View All Rooms</a>
+    </div>
+</section>
+
+<!-- Featured Menu Items -->
+<section class="container mt-5">
+    <h2 class="text-center mb-4">From Our Kitchen</h2>
+    <div class="cards-grid">
+        {% for item in featuredMenu %}
+        <div class="menu-item">
+            <img src="/uploads/{{ item.image|default('default-food.jpg') }}" 
+                 alt="{{ item.name }}"
+                 loading="lazy">
+            <div class="menu-item-content">
+                <h4>{{ item.name }}</h4>
+                <p class="menu-item-description">{{ item.description|slice(0, 80) }}...</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="menu-item-price">{{currency}}{{ item.price|number_format(2) }}</span>
+                    {% if item.dietary_info %}
+                        <span class="dietary-info">
+                            <i class="fas fa-leaf text-success"></i> {{ item.dietary_info }}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="text-center mt-4">
+        <a href="/menu" class="btn btn-secondary">View Full Menu</a>
+    </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="container mt-5">
+    <h2 class="text-center mb-4">Why Choose Us</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="text-center">
+                <i class="fas fa-hotel fa-3x text-primary mb-3"></i>
+                <h4>Luxury Rooms</h4>
+                <p>Spacious and well-appointed rooms with modern amenities for your comfort.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="text-center">
+                <i class="fas fa-utensils fa-3x text-primary mb-3"></i>
+                <h4>Fine Dining</h4>
+                <p>Experience culinary excellence with our diverse menu and expert chefs.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="text-center">
+                <i class="fas fa-wifi fa-3x text-primary mb-3"></i>
+                <h4>Free WiFi</h4>
+                <p>Stay connected with high-speed internet throughout the property.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="container mt-5">
+    <h2 class="text-center mb-4">What Our Guests Say</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="mb-3 text-warning">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="card-text">"Amazing experience! The room was perfect and the restaurant service was exceptional."</p>
+                    <footer class="blockquote-footer mt-3">John Doe</footer>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="mb-3 text-warning">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="card-text">"Excellent location, friendly staff, and delicious food. Will definitely come back!"</p>
+                    <footer class="blockquote-footer mt-3">Jane Smith</footer>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="mb-3 text-warning">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <p class="card-text">"Great value for money. The amenities were top-notch and the staff was very helpful."</p>
+                    <footer class="blockquote-footer mt-3">Mike Johnson</footer>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

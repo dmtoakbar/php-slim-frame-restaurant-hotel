@@ -1,0 +1,257 @@
+{% extends "base.twig" %}
+
+{% block title %}Make a Reservation - Hotel & Restaurant{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="bg-primary text-white py-5">
+    <div class="container text-center">
+        <h1>Make a Reservation</h1>
+        <p class="lead">Book your stay, reserve a table, or schedule a table booking</p>
+    </div>
+</section>
+
+<!-- Reservation Tabs -->
+<section class="container mt-5">
+<style>
+.nav-tabs .nav-link {
+     background-color: rgb(33 37 41); 
+    color: white; 
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #0d6efd;
+    color: #fff;             
+}
+</style>
+  <ul class="nav nav-tabs justify-content-center" id="reservationTabs" role="tablist">
+    <li class="nav-item me-2 me-sm-3 me-md-4" role="presentation">
+        <button class="nav-link active" id="room-tab" data-bs-toggle="tab" data-bs-target="#room" type="button" role="tab">
+            <i class="fas fa-bed"></i> Room
+        </button>
+    </li>
+    <li class="nav-item me-2 me-sm-3 me-md-4" role="presentation">
+        <button class="nav-link" id="restaurant-tab" data-bs-toggle="tab" data-bs-target="#restaurant" type="button" role="tab">
+            <i class="fas fa-utensils"></i> Restaurant
+        </button>
+    </li>
+</ul>
+    
+    <div class="tab-content mt-4" id="reservationTabsContent">
+        <!-- Room Booking Tab -->
+        <div class="tab-pane fade show active" id="room" role="tabpanel">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0">Book a Room</h4>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="/reservation/room" id="roomBookingForm" class="needs-validation" novalidate>
+                                <!-- Room Booking Form Fields -->
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="room_id" class="form-label">Select Room</label>
+                                        <select class="form-control" id="room_id" name="room_id" required>
+                                            <option value="">Choose a room...</option>
+                                            {% for room in rooms %}
+                                            <option value="{{ room.id }}" data-price="{{ room.price }}">
+                                                {{ room.type|capitalize }} - {{ currency }}{{ room.price }}/night
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="name" class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" id="name" name="name" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" name="email" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="phone" class="form-label">Phone</label>
+                                        <input type="tel" class="form-control" id="phone" name="phone" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="check_in" class="form-label">Check-in Date</label>
+                                        <input type="date" class="form-control" id="check_in" name="check_in" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="check_out" class="form-label">Check-out Date</label>
+                                        <input type="date" class="form-control" id="check_out" name="check_out" required>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="adults" class="form-label">Adults</label>
+                                        <select class="form-control" id="adults" name="adults" required>
+                                            {% for i in 1..4 %}
+                                            <option value="{{ i }}">{{ i }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="children" class="form-label">Children</label>
+                                        <select class="form-control" id="children" name="children">
+                                            {% for i in 0..3 %}
+                                            <option value="{{ i }}">{{ i }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Total Price</label>
+                                        <div class="form-control bg-light" id="totalPrice">{{ currency }}0.00</div>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label for="special_requests" class="form-label">Special Requests</label>
+                                        <textarea class="form-control" id="special_requests" name="special_requests" rows="3"></textarea>
+                                    </div>
+                                </div>
+                                 <div class="col-12">
+                                <button type="submit" class="btn btn-primary btn-lg w-100">Make Reservation</button>
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Restaurant Reservation Tab -->
+        <div class="tab-pane fade" id="restaurant" role="tabpanel">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Restaurant Reservation</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="/reservation/restaurant" id="restaurantReservationForm" class="needs-validation" novalidate>
+                        <div class="row">
+                            <!-- Full Name -->
+                            <div class="col-md-6 mb-3">
+                                <label for="guest_name" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="guest_name" name="guest_name" required>
+                            </div>
+                            <!-- Email -->
+                            <div class="col-md-6 mb-3">
+                                <label for="guest_email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="guest_email" name="guest_email">
+                            </div>
+                            <!-- Phone -->
+                            <div class="col-md-6 mb-3">
+                                <label for="guest_phone" class="form-label">Phone</label>
+                                <input type="tel" class="form-control" id="guest_phone" name="guest_phone">
+                            </div>
+                            <!-- Reservation Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="reservation_date" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="reservation_date" name="reservation_date" required>
+                            </div>
+                            <!-- Reservation Time -->
+                            <div class="col-md-6 mb-3">
+                                <label for="reservation_time" class="form-label">Time</label>
+                                <select class="form-control" id="reservation_time" name="reservation_time" required>
+                                    <option value="18:00">6:00 PM</option>
+                                    <option value="18:30">6:30 PM</option>
+                                    <option value="19:00">7:00 PM</option>
+                                    <option value="19:30">7:30 PM</option>
+                                    <option value="20:00">8:00 PM</option>
+                                    <option value="20:30">8:30 PM</option>
+                                    <option value="21:00">9:00 PM</option>
+                                </select>
+                            </div>
+                            <!-- Number of Guests -->
+                            <div class="col-md-6 mb-3">
+                                <label for="guests" class="form-label">Number of Guests</label>
+                                <select class="form-control" id="guests" name="guests" required>
+                                    {% for i in 1..10 %}
+                                    <option value="{{ i }}">{{ i }} {{ i == 1 ? 'Guest' : 'Guests' }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <!-- Special Requests -->
+                            <div class="col-12 mb-3">
+                                <label for="special_requests" class="form-label">Special Requests</label>
+                                <textarea class="form-control" id="special_requests" name="special_requests" rows="3"></textarea>
+                            </div>
+                            <!-- Submit -->
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary btn-lg w-100">Make Reservation</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    // Set min dates
+    var today = new Date().toISOString().split('T')[0];
+    $('#check_in, #res_date, #table_date').attr('min', today);
+    
+    $('#check_in').change(function() {
+        $('#check_out').attr('min', $(this).val());
+        calculateTotal();
+    });
+    
+    $('#check_out, #room_id, #adults, #children').change(function() {
+        calculateTotal();
+    });
+    
+    function calculateTotal() {
+        var roomId = $('#room_id').val();
+        var checkIn = $('#check_in').val();
+        var checkOut = $('#check_out').val();
+        
+        if (roomId && checkIn && checkOut) {
+            var price = $('#room_id option:selected').data('price');
+            var nights = (new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24);
+            var total = price * nights;
+            $('#totalPrice').text('{{ currency }}' + total.toFixed(2));
+        }
+    }
+
+
+
+    $('#roomBookingForm').submit(function(e) {
+        e.preventDefault();
+        
+        const form = $(this);
+        const submitBtn = form.find('button[type="submit"]');
+        const originalText = submitBtn.text();
+        
+        submitBtn.html('<span class="spinner-border spinner-border-sm" role="status"></span> Processing...').prop('disabled', true);
+        
+        $.ajax({
+            url: '/reservation/room',
+            method: 'POST',
+            data: form.serialize(),
+            success: function(response) {
+                if (response.success) {
+                    showAlert('Reservation created successfully!', 'success');
+                    form[0].reset();
+                } else {
+                    showAlert('Error: ' + response.message, 'error');
+                }
+            },
+            error: function() {
+                showAlert('An error occurred. Please try again.', 'error');
+            },
+            complete: function() {
+                submitBtn.text(originalText).prop('disabled', false);
+            }
+        });
+    });
+});
+</script>
+
+{% endblock %}

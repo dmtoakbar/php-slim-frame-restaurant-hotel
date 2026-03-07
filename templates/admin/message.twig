@@ -1,0 +1,21 @@
+<div class="message-details">
+    <div class="mb-3">
+        <strong>From:</strong> {{ message.name }}<br>
+        <strong class="message-email">Email:</strong> {{ message.email }}<br>
+        {% if message.phone %}
+        <strong>Phone:</strong> {{ message.phone }}<br>
+        {% endif %}
+        <strong>Date:</strong> {{ message.created_at|date('F j, Y g:i A') }}
+    </div>
+    
+    <div class="mb-3">
+        <strong>Subject:</strong> {{ message.subject }}
+    </div>
+    
+    <div class="mb-3">
+        <strong>Message:</strong>
+        <div class="p-3 bg-light rounded mt-2">
+            {{ message.message|nl2br }}
+        </div>
+    </div>
+</div>

@@ -1,0 +1,103 @@
+{% extends "admin/base.twig" %}
+
+{% block title %}Reservation Details{% endblock %}
+
+{% set current_page = 'reservations' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Reservation #{{ reservation.id }}</h1>
+        <a href="/admin/reservations" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Reservations
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Guest Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <th>Name:</th>
+                            <td>{{ reservation.guest_name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Email:</th>
+                            <td>{{ reservation.guest_email }}</td>
+                        </tr>
+                        <tr>
+                            <th>Phone:</th>
+                            <td>{{ reservation.guest_phone }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Reservation Details</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <th>Date:</th>
+                            <td>{{ reservation.reservation_date|date('F j, Y') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Time:</th>
+                            <td>{{ reservation.reservation_time|date('g:i A') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Guests:</th>
+                            <td>{{ reservation.guests }} People</td>
+                        </tr>
+                        <tr>
+                            <th>Status:</th>
+                            <td>
+                                <select class="form-control" onchange="updateReservationStatus({{ reservation.id }}, this.value)">
+                                    <option value="pending" {{ reservation.status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="confirmed" {{ reservation.status == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                                    <option value="completed" {{ reservation.status == 'completed' ? 'selected' : '' }}>Completed</option>
+                                    <option value="cancelled" {{ reservation.status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Special Requests</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ reservation.special_requests ?: 'No special requests' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateReservationStatus(id, status) {
+    $.ajax({
+        url: '/admin/reservations/' + id + '/status',
+        method: 'POST',
+        data: {status: status},
+        success: function(response) {
+            if (response.success) {
+                showAlert('Reservation status updated', 'success');
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

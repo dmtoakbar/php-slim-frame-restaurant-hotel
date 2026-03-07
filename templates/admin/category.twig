@@ -1,0 +1,51 @@
+{% extends "base.twig" %}
+
+{% block title %}{{ category.name }} - Menu{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="bg-primary text-white py-5">
+    <div class="container text-center">
+        <h1>{{ category.name }}</h1>
+        <p class="lead">{{ category.description }}</p>
+    </div>
+</section>
+
+<!-- Menu Items -->
+<section class="container mt-5">
+    <div class="cards-grid">
+        {% for item in category.items %}
+        <div class="menu-item">
+            <img src="/uploads/{{ item.image|default('default-food.jpg') }}" 
+                 alt="{{ item.name }}"
+                 loading="lazy">
+            <div class="menu-item-content">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h4>{{ item.name }}</h4>
+                    <span class="menu-item-price">${{ item.price|number_format(2) }}</span>
+                </div>
+                <p class="menu-item-description">{{ item.description }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    {% if item.dietary_info %}
+                        <span class="dietary-info">
+                            <i class="fas fa-leaf text-success"></i> {{ item.dietary_info }}
+                        </span>
+                    {% endif %}
+                    <a href="/reservation" class="btn btn-sm btn-primary">Book Table</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                No items available in this category.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="text-center mt-4">
+        <a href="/menu" class="btn btn-secondary">Back to Menu</a>
+    </div>
+</section>
+{% endblock %}

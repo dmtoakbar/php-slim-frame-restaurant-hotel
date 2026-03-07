@@ -1,0 +1,59 @@
+{% extends "admin/base.twig" %}
+
+{% block title %}Restaurant Reservations{% endblock %}
+
+{% set current_page = 'reservations' %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4">Restaurant Reservations</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <ul class="nav nav-tabs mb-3" id="reservationTabs">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#all">All</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#today">Today</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#pending">Pending</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#confirmed">Confirmed</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#completed">Completed</a>
+                </li>
+            </ul>
+            
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="all">
+                    {% include 'admin/partials/reservations_table.twig' with {reservations: reservations} %}
+                </div>
+                <div class="tab-pane fade" id="today">
+                    {% include 'admin/partials/reservations_table.twig' with {
+                        reservations: reservations|filter(r => r.reservation_date|date('Y-m-d') == "now"|date('Y-m-d'))
+                    } %}
+                </div>
+                <div class="tab-pane fade" id="pending">
+                    {% include 'admin/partials/reservations_table.twig' with {
+                        reservations: reservations|filter(r => r.status == 'pending')
+                    } %}
+                </div>
+                <div class="tab-pane fade" id="confirmed">
+                    {% include 'admin/partials/reservations_table.twig' with {
+                        reservations: reservations|filter(r => r.status == 'confirmed')
+                    } %}
+                </div>
+                <div class="tab-pane fade" id="completed">
+                    {% include 'admin/partials/reservations_table.twig' with {
+                        reservations: reservations|filter(r => r.status == 'completed')
+                    } %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
