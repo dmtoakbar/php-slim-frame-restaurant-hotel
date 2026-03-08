@@ -59,6 +59,62 @@ class RoomController
         ]);
     }
 
+
+       public function initialCheckAvailability(Request $request, Response $response)
+    {
+        $data = $request->getParsedBody();
+        
+        // Validate input
+        $validator = v::key('check_in', v::date('Y-m-d'))
+                      ->key('check_out', v::date('Y-m-d'))
+                      ->key('adults', v::intVal()->positive())
+                      ->key('children', v::optional(v::intVal()));
+        
+        try {
+            $validator->assert($data);
+            
+            // Check if check_out is after check_in
+            if (strtotime($data['check_out']) <= strtotime($data['check_in'])) {
+                throw new \Exception('Check-out date must be after check-in date');
+            }
+            
+            // Find available rooms
+            $availableRooms = Room::where('status', 'available')
+                ->where('capacity', '>=', $data['adults'] + ($data['children'] ?? 0))
+                ->whereNotIn('id', function($query) use ($data) {
+                    $query->select('room_id')
+                        ->from('room_bookings')
+                        ->where(function($q) use ($data) {
+                            $q->whereBetween('check_in', [$data['check_in'], $data['check_out']])
+                              ->orWhereBetween('check_out', [$data['check_in'], $data['check_out']])
+                              ->orWhere(function($q2) use ($data) {
+                                  $q2->where('check_in', '<=', $data['check_in'])
+                                     ->where('check_out', '>=', $data['check_out']);
+                              });
+                        })
+                        ->where('status', '!=', 'cancelled');
+                })
+                ->get();
+            
+            $payload = [
+                'success' => true,
+                'rooms' => $availableRooms
+            ];
+            
+            $response->getBody()->write(json_encode($payload));
+            return $response->withHeader('Content-Type', 'application/json');
+            
+        } catch (\Exception $e) {
+            $payload = [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+            
+            $response->getBody()->write(json_encode($payload));
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+    }
+
     public function checkAvailability(Request $request, Response $response)
     {
         $data = $request->getParsedBody();

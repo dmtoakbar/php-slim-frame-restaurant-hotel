@@ -21,6 +21,7 @@ return function ($app) {
     $app->get('/', [HomeController::class, 'index'])->setName('home');
     $app->get('/rooms', [RoomController::class, 'index'])->setName('rooms');
     $app->get('/rooms/{id}', [RoomController::class, 'show'])->setName('room.detail');
+    $app->post('/rooms/initial-check-availability', [RoomController::class, 'initialCheckAvailability'])->setName('room.initial-check');
     $app->post('/rooms/check-availability', [RoomController::class, 'checkAvailability'])->setName('room.check');
 
     $app->get('/menu', [MenuController::class, 'index'])->setName('menu');

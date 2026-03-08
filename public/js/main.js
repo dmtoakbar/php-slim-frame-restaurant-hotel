@@ -61,6 +61,92 @@ function initDatePickers() {
     }
 }
 
+
+// Room Availability Checker
+function initRoomAvailability() {
+    $('#checkAvailability').submit(function(e) {
+        e.preventDefault();
+        
+        const form = $(this);
+        const submitBtn = form.find('button[type="submit"]');
+        const originalText = submitBtn.text();
+        
+        // Show loading state
+        submitBtn.html('<span class="spinner-border spinner-border-sm" role="status"></span> Checking...').prop('disabled', true);
+        
+        $.ajax({
+            url: '/rooms/initial-check-availability',
+            method: 'POST',
+            data: form.serialize(),
+            timeout: 30000,
+            success: function(response) {
+                if (response.success) {
+                    displayAvailableRooms(response.rooms);
+                    // Scroll to results on mobile
+                    if ($(window).width() < 768) {
+                        $('html, body').animate({
+                            scrollTop: $('#availableRooms').offset().top - 70
+                        }, 500);
+                    }
+                } else {
+                    showAlert(response.message, 'error');
+                }
+            },
+            error: function() {
+                showAlert('An error occurred. Please try again.', 'error');
+            },
+            complete: function() {
+                submitBtn.text(originalText).prop('disabled', false);
+            }
+        });
+    });
+}
+
+// Display Available Rooms
+function displayAvailableRooms(rooms) {
+    let html = '<div class="cards-grid">';
+    
+    if (rooms.length === 0) {
+        html = '<div class="alert alert-info text-center"><i class="fas fa-info-circle"></i> No rooms available for selected dates.</div>';
+    } else {
+        rooms.forEach(function(room) {
+            html += `
+                <div class="room-card">
+                    <img src="/uploads/${room.image || 'default-room.jpg'}" 
+                         alt="${room.type} Room"
+                         loading="lazy">
+                    <div class="card-body">
+                        <h3 class="card-title">${capitalizeFirst(room.type)} Room</h3>
+                        <p class="card-text">${truncateText(room.description, 100)}</p>
+                        <div class="room-amenities">
+                            ${getAmenitiesHtml(room.amenities)}
+                        </div>
+                        <div class="room-price">₹${room.price} <small>/ night</small></div>
+                        <button class="btn btn-primary book-now w-100" 
+                                data-room-id="${room.id}"
+                                data-room-name="${room.type}"
+                                data-room-price="${room.price}">
+                            Book Now
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    html += '</div>';
+    
+    $('#availableRooms').html(html).fadeIn();
+    
+    // Attach book now handlers
+    $('.book-now').click(function() {
+        const roomId = $(this).data('room-id');
+        const roomName = $(this).data('room-name');
+        const roomPrice = $(this).data('room-price');
+        openBookingModal(roomId, roomName, roomPrice);
+    });
+}
+
 // Open Booking Modal
 function openBookingModal(roomId, roomName, roomPrice) {
     const checkIn = $('#check_in').val();
@@ -68,10 +154,13 @@ function openBookingModal(roomId, roomName, roomPrice) {
     const adults = $('#adults').val();
     const children = $('#children').val();
 
+    const showAdultsInput = adults === undefined ? true : false;
+    const showChildrenInput = children === undefined ? true : false;
+
     const nights = calculateNights(checkIn, checkOut);
     const totalPrice = roomPrice * nights;
 
-    const modalHtml = `
+    let modalHtml = `
         <div class="modal fade" id="bookingModal" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content">
@@ -84,8 +173,6 @@ function openBookingModal(roomId, roomName, roomPrice) {
                             <input type="hidden" name="room_id" value="${roomId}">
                             <input type="hidden" name="check_in" value="${checkIn}">
                             <input type="hidden" name="check_out" value="${checkOut}">
-                            <input type="hidden" name="adults" value="${adults}">
-                            <input type="hidden" name="children" value="${children}">
                             
                             <div class="form-group mb-3">
                                 <label for="name">Full Name *</label>
@@ -112,8 +199,57 @@ function openBookingModal(roomId, roomName, roomPrice) {
                             
                             <div class="booking-summary p-3 bg-light rounded mb-3">
                                 <h6>Booking Summary</h6>
-                                <p class="mb-1">Nights: ${nights}</p>
-                                <p class="mb-1">Guests: ${adults} Adults, ${children} Children</p>
+                                `;
+
+                                  if (showAdultsInput) {
+                                    modalHtml += `
+                                        <div class="form-group mb-3">
+                                            <label for="modal_adults">Adults *</label>
+                                            <select class="form-control" id="modal_adults" name="adults" required>
+                                                <option value="">Select</option>
+                                                <option value="1">1 Adult</option>
+                                                <option value="2">2 Adults</option>
+                                                <option value="3">3 Adults</option>
+                                                <option value="4">4 Adults</option>
+                                            </select>
+                                            <div class="invalid-feedback">Please select number of adults</div>
+                                        </div>
+                                    `;
+                                } else {
+                                    modalHtml += `
+                                    <div class="form-group mb-3">
+                                        <label for="modal_adults">Adults</label>
+                                        <input type="text" class="form-control" id="modal_adults" name="adults" value="${adults}" readonly>
+                                    </div>
+                                `;
+                                }
+
+
+                                 if (showChildrenInput) {
+                                    modalHtml += `
+                                        <div class="form-group mb-3">
+                                            <label for="modal_children">Children</label>
+                                            <select class="form-control" id="modal_children" name="children">
+                                                <option value="0">0 Children</option>
+                                                <option value="1">1 Children</option>
+                                                <option value="2">2 Children</option>
+                                                <option value="3">3 Children</option>
+                                            </select>
+                                        </div>
+                                    `;
+                                } else {
+                                   modalHtml += `
+                                    <div class="form-group mb-3">
+                                        <label for="modal_children">Children</label>
+                                        <input type="text" class="form-control" id="modal_children" name="children" value="${children}" readonly>
+                                    </div>
+                                `;
+                                }
+
+                                 modalHtml += `
+                                 <p class="mb-1">Check-in: <strong>${checkIn}</strong></p>
+                                <p class="mb-1">Check-out: <strong>${checkOut}</strong></p>
+                                <p class="mb-1">Nights: <strong>${nights} nights</strong></p>
                                 <p class="mb-0 fw-bold">Total: ₹${totalPrice.toFixed(2)}</p>
                             </div>
                         </form>
